@@ -1,4 +1,3 @@
-// src/hooks/use-list-professor-classes-by-id/use-list-professor-classes-by-id.hook.ts
 import { useState, useEffect } from 'react';
 import { listProfessorClassesByIdService } from '../../services/list-professor-classes-by-id/list-professor-classes-by-id.service';
 import { ClassWithStatus, listProfessorClassesByIdServiceInput, UseListProfessorClassesByIdResult } from '../../services/list-professor-classes-by-id/list-professor-classes-by-id.types';
@@ -27,12 +26,10 @@ export const useListProfessorClassesById = ({
         const classesWithStatus = await Promise.all(
           classData.map(async (classe) => {
             try {
-              // passar a urlBase para o fetchClassStatusService
-
               const { status } = await fetchClassStatusService({urlBase, classId: classe.code});
               return { ...classe, status };
             } catch {
-              return { ...classe, status: undefined }; // Em caso de erro, status será undefined
+              return { ...classe, status: undefined };
             }
           })
         );

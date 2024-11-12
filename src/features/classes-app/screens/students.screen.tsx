@@ -24,10 +24,8 @@ export const StudentsScreen: React.FC = () => {
   };
 
   const handleEvaluationUpdate = () => {
-    // Recarrega a lista de alunos para atualizar o status
     if (classId) {
-      // Re-fetch students data
-      window.location.reload(); // Temporário até implementar refresh adequado
+      window.location.reload();
     }
   };
 
@@ -35,8 +33,7 @@ export const StudentsScreen: React.FC = () => {
     navigate('/');
   };
 
-  // Definindo a URL base
-  const urlBase = 'http://localhost:8080';  // Substitua com sua URL base real
+  const urlBase = 'http://localhost:8080';
 
   return (
     <Box sx={{ padding: '40px' }}>
@@ -106,7 +103,7 @@ export const StudentsScreen: React.FC = () => {
           onClose={handleDrawerClose}
           student={selectedStudent}
           onEvaluationUpdate={handleEvaluationUpdate}
-          urlBase={urlBase}  // Passando a URL base como parâmetro
+          urlBase={urlBase}
         />
       )}
     </Box>

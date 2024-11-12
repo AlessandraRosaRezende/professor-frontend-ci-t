@@ -22,7 +22,7 @@ interface GradeDrawerProps {
     status: string;
   };
   onEvaluationUpdate: () => void;
-  urlBase: string; // Recebe a URL base como propriedade
+  urlBase: string;
 }
 
 export const GradeDrawer: React.FC<GradeDrawerProps> = ({
@@ -58,7 +58,6 @@ export const GradeDrawer: React.FC<GradeDrawerProps> = ({
 
     let isValid = true;
 
-    // Validar aulas lecionadas
     if (!formData.aulas_lecionadas) {
       newErrors.aulas_lecionadas = 'Campo obrigatório';
       isValid = false;
@@ -67,7 +66,6 @@ export const GradeDrawer: React.FC<GradeDrawerProps> = ({
       isValid = false;
     }
 
-    // Validar aulas atendidas
     if (!formData.aulas_atendidas) {
       newErrors.aulas_atendidas = 'Campo obrigatório';
       isValid = false;
@@ -79,7 +77,6 @@ export const GradeDrawer: React.FC<GradeDrawerProps> = ({
       isValid = false;
     }
 
-    // Validar notas
     if (!formData.nota_p1) {
       newErrors.nota_p1 = 'Campo obrigatório';
       isValid = false;
@@ -108,7 +105,6 @@ export const GradeDrawer: React.FC<GradeDrawerProps> = ({
       [field]: event.target.value
     }));
 
-    // Limpa o erro do campo quando o usuário começa a digitar
     if (formErrors[field]) {
       setFormErrors(prev => ({
         ...prev,
@@ -130,14 +126,14 @@ export const GradeDrawer: React.FC<GradeDrawerProps> = ({
     };
 
     const success = await updateEvaluation({
-      urlBase, // Passando a URL base para o serviço
+      urlBase,
       studentId: student.id,
       evaluation
     });
 
     if (success) {
-      onEvaluationUpdate();  // Atualiza a lista de alunos
-      onClose();  // Fecha o drawer
+      onEvaluationUpdate();
+      onClose();
     }
   };
 
