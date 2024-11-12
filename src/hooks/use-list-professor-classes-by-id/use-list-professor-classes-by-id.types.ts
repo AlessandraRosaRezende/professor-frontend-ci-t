@@ -15,3 +15,4 @@ export interface UseListProfessorClassesByIdResult {
 export type UseListProfessorClassesByIdHook = (
   params: UseListProfessorClassesByIdProps,
 ) => UseListProfessorClassesByIdResult;
+

@@ -1,48 +1,54 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-import { listProfessorClassesByIdService } from "../../services/list-professor-classes-by-id/list-professor-classes-by-id.service";
-import { UseListProfessorClassesByIdProps, UseListProfessorClassesByIdResult } from "./use-list-professor-classes-by-id.types";
+// src/hooks/use-list-professor-classes-by-id/use-list-professor-classes-by-id.hook.ts
+import { useState, useEffect } from 'react';
+import { listProfessorClassesByIdService } from '../../services/list-professor-classes-by-id/list-professor-classes-by-id.service';
+import { ClassWithStatus, listProfessorClassesByIdServiceInput, UseListProfessorClassesByIdResult } from '../../services/list-professor-classes-by-id/list-professor-classes-by-id.types';
+import { fetchClassStatusService } from '../../services/fetch-class-status/fetch-class-status.service';
 
-export const useListProfessorClassesById = ({ professorId }: UseListProfessorClassesByIdProps) => {
-  const [result, setResult] = useState<UseListProfessorClassesByIdResult[] | null>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+export const useListProfessorClassesById = ({
+  professorId,
+}: listProfessorClassesByIdServiceInput): UseListProfessorClassesByIdResult => {
+  const [classes, setClasses] = useState<ClassWithStatus[] | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  const urlBase = 'http://localhost:8080';
+
   useEffect(() => {
-    const fetchClasses = async () => {
+    const fetchClassesWithStatus = async () => {
       setLoading(true);
+      setError(null);
+
       try {
-        const response = await listProfessorClassesByIdService({
-          urlBase: 'http://localhost:8080',
+        const classData = await listProfessorClassesByIdService({
+          urlBase,
           professorId,
         });
 
         const classesWithStatus = await Promise.all(
-          response.map(async (classe) => {
+          classData.map(async (classe) => {
             try {
-              const statusResponse = await axios.get<{ status: string }>(
-                `http://localhost:8080/class/${classe.code}/status`
-              );
-              return { ...classe, status: statusResponse.data.status };
+              // passar a urlBase para o fetchClassStatusService
+
+              const { status } = await fetchClassStatusService({urlBase, classId: classe.code});
+              return { ...classe, status };
             } catch {
-              return { ...classe, status: 'Erro ao carregar status' };
+              return { ...classe, status: undefined }; // Em caso de erro, status será undefined
             }
           })
         );
 
-        setResult(classesWithStatus);
-      } catch (err) {
-        console.log(err)
-        setError(err instanceof Error ? err.message : 'Error fetching data');
+        setClasses(classesWithStatus);
+      } catch {
+        setError('Erro ao carregar as turmas');
       } finally {
         setLoading(false);
       }
     };
 
     if (professorId) {
-      fetchClasses();
+      fetchClassesWithStatus();
     }
-  }, [professorId]);
+  }, [urlBase, professorId]);
 
-  return { result, loading, error };
-}
+  return { classes, loading, error };
+};

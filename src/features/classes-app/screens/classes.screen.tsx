@@ -1,11 +1,12 @@
 import React from 'react';
-import { Box, Card, CardContent, CircularProgress, Typography } from "@mui/material";
+import { Box, Card, CardContent, CircularProgress, Typography } from '@mui/material';
 import { useListProfessorClassesById } from '../../../hooks/use-list-professor-classes-by-id/use-list-professor-classes-by-id.hook';
 import { useNavigate } from 'react-router-dom';
 
 export const ClassesScreen: React.FC = () => {
   const navigate = useNavigate();
-  const { result: classesInfo, loading, error } = useListProfessorClassesById({ professorId: 'PROF001' });
+  const urlBase = 'http://localhost:8080';
+  const { classes, loading, error } = useListProfessorClassesById({ urlBase, professorId: 'PROF001' });
 
   const handleCardClick = (classId: string) => {
     navigate(`/class/${classId}`);
@@ -19,11 +20,22 @@ export const ClassesScreen: React.FC = () => {
 
       {loading && <CircularProgress sx={{ display: 'block', margin: '20px auto' }} />}
       {error && <Typography color="error">{error}</Typography>}
-
-      {classesInfo && (
-        <Box display="flex" flexWrap="wrap" justifyContent="flex-start" gap={2}>
-          {classesInfo.map((classe) => (
-            <Box key={classe.courseId} sx={{ width: { xs: '100%', sm: '45%', md: '30%' }, padding: '1rem' }}>
+      
+      {classes && (
+        <Box
+          display="flex"
+          flexWrap="wrap"
+          justifyContent="flex-start"
+          gap={2}
+        >
+          {classes.map((classe) => (
+            <Box
+              key={classe.courseId}
+              sx={{
+                width: { xs: '100%', sm: '45%', md: '30%' },
+                padding: '1rem'
+              }}
+            >
               <Card onClick={() => handleCardClick(classe.code)} sx={{ cursor: 'pointer', height: '100%', boxShadow: 2 }}>
                 <CardContent>
                   <Typography variant="h5" component="h2">
@@ -42,16 +54,7 @@ export const ClassesScreen: React.FC = () => {
                     Modalidade: {classe.modality}
                   </Typography>
                   <Typography color="textSecondary">
-                    Status: {classe.status || 'Carregando...'}
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    {classe.status === 'ABERTA'
-                      ? 'Nenhuma nota ou frequência foi lançada ainda.'
-                      : classe.status === 'EM_FECHAMENTO'
-                        ? 'Notas e frequências foram lançadas para alguns alunos.'
-                        : classe.status === 'FECHADA'
-                          ? 'Notas e frequências foram lançadas para todos os alunos.'
-                          : null}
+                    Status: {classe.status || 'Desconhecido'}
                   </Typography>
                 </CardContent>
               </Card>
