@@ -9,6 +9,7 @@ export interface UseListProfessorClassesByIdResult {
   campus: string;
   period: string;
   modality: string;
+  status?: string;
 }
 
 export type UseListProfessorClassesByIdHook = (

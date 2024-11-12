@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import axios from 'axios';
 import { listProfessorClassesByIdService } from "../../services/list-professor-classes-by-id/list-professor-classes-by-id.service";
 import { UseListProfessorClassesByIdProps, UseListProfessorClassesByIdResult } from "./use-list-professor-classes-by-id.types";
 
@@ -16,7 +17,20 @@ export const useListProfessorClassesById = ({ professorId }: UseListProfessorCla
           professorId,
         });
 
-        setResult(response);
+        const classesWithStatus = await Promise.all(
+          response.map(async (classe) => {
+            try {
+              const statusResponse = await axios.get<{ status: string }>(
+                `http://localhost:8080/class/${classe.code}/status`
+              );
+              return { ...classe, status: statusResponse.data.status };
+            } catch {
+              return { ...classe, status: 'Erro ao carregar status' };
+            }
+          })
+        );
+
+        setResult(classesWithStatus);
       } catch (err) {
         console.log(err)
         setError(err instanceof Error ? err.message : 'Error fetching data');
