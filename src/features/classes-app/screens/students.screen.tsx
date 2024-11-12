@@ -1,24 +1,49 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Box, Typography, Card, CardContent, CircularProgress, IconButton } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useListStudentsFromClassById } from '../../../hooks/use-list-students-from-class-by-id/use-list-students-from-class-by-id.hook';
+import { GradeDrawer } from '../components/grade-drawer/grade-drawer.component';
+import { UseListStudentsFromClassByIdResult } from '../../../hooks/use-list-students-from-class-by-id/use-list-students-from-class-by-id.types';
 
 export const StudentsScreen: React.FC = () => {
   const { classId } = useParams<{ classId: string }>();
   const navigate = useNavigate();
   const { result: studentsInfo, loading, error } = useListStudentsFromClassById({ classId: classId! });
+  const [selectedStudent, setSelectedStudent] = useState<UseListStudentsFromClassByIdResult | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const handleStudentClick = (student: UseListStudentsFromClassByIdResult) => {
+    setSelectedStudent(student);
+    setDrawerOpen(true);
+  };
+
+  const handleDrawerClose = () => {
+    setDrawerOpen(false);
+    setSelectedStudent(null);
+  };
+
+  const handleEvaluationUpdate = () => {
+    // Recarrega a lista de alunos para atualizar o status
+    if (classId) {
+      // Re-fetch students data
+      window.location.reload(); // Temporário até implementar refresh adequado
+    }
+  };
 
   const handleBackClick = () => {
-    navigate('/'); 
+    navigate('/');
   };
+
+  // Definindo a URL base
+  const urlBase = 'http://localhost:8080';  // Substitua com sua URL base real
 
   return (
     <Box sx={{ padding: '40px' }}>
       <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
         <IconButton onClick={handleBackClick} sx={{ marginRight: '2px' }}>
-          <ArrowBackIcon/> 
-          <Typography variant="h6"> Voltar </Typography> 
+          <ArrowBackIcon />
+          <Typography variant="h6"> Voltar </Typography>
         </IconButton>
         <Typography variant="h5" sx={{ marginBottom: '20px', marginTop: '20px' }}>
           Alunos da Turma: {classId}
@@ -27,7 +52,7 @@ export const StudentsScreen: React.FC = () => {
 
       {loading && <CircularProgress />}
       {error && <Typography color="error">{error}</Typography>}
-      
+
       {studentsInfo && studentsInfo.length > 0 ? (
         <Box
           display="flex"
@@ -43,7 +68,19 @@ export const StudentsScreen: React.FC = () => {
                 padding: '1rem'
               }}
             >
-              <Card sx={{ height: '100%', boxShadow: 3 }}>
+              <Card
+                onClick={() => handleStudentClick(student)}
+                sx={{
+                  cursor: 'pointer',
+                  height: '100%',
+                  boxShadow: 2,
+                  '&:hover': {
+                    boxShadow: 6,
+                    transform: 'translateY(-2px)',
+                    transition: 'all 0.2s'
+                  }
+                }}
+              >
                 <CardContent>
                   <Typography variant="h5" component="h2">
                     {student.name}
@@ -61,6 +98,16 @@ export const StudentsScreen: React.FC = () => {
         </Box>
       ) : (
         !loading && <Typography>Nenhum aluno encontrado.</Typography>
+      )}
+
+      {selectedStudent && (
+        <GradeDrawer
+          open={drawerOpen}
+          onClose={handleDrawerClose}
+          student={selectedStudent}
+          onEvaluationUpdate={handleEvaluationUpdate}
+          urlBase={urlBase}  // Passando a URL base como parâmetro
+        />
       )}
     </Box>
   );

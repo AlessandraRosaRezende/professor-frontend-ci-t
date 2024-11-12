@@ -1,12 +1,12 @@
 import React from 'react';
-import { Box, Card, CardContent, CircularProgress, Typography } from "@mui/material";
+import { Box, Card, CardContent, CircularProgress, Typography } from '@mui/material';
 import { useListProfessorClassesById } from '../../../hooks/use-list-professor-classes-by-id/use-list-professor-classes-by-id.hook';
 import { useNavigate } from 'react-router-dom';
 
 export const ClassesScreen: React.FC = () => {
-  
   const navigate = useNavigate();
-  const { result: classesInfo, loading, error } = useListProfessorClassesById({ professorId: 'PROF001' });
+  const urlBase = 'http://localhost:8080';
+  const { classes, loading, error } = useListProfessorClassesById({ urlBase, professorId: 'PROF001' });
 
   const handleCardClick = (classId: string) => {
     navigate(`/class/${classId}`);
@@ -21,14 +21,14 @@ export const ClassesScreen: React.FC = () => {
       {loading && <CircularProgress sx={{ display: 'block', margin: '20px auto' }} />}
       {error && <Typography color="error">{error}</Typography>}
       
-      {classesInfo && (
+      {classes && (
         <Box
           display="flex"
           flexWrap="wrap"
           justifyContent="flex-start"
           gap={2}
         >
-          {classesInfo.map((classe) => (
+          {classes.map((classe) => (
             <Box
               key={classe.courseId}
               sx={{
@@ -51,10 +51,10 @@ export const ClassesScreen: React.FC = () => {
                     Período: {classe.period}
                   </Typography>
                   <Typography color="textSecondary">
-                    modalidade: {classe.modality}
+                    Modalidade: {classe.modality}
                   </Typography>
                   <Typography color="textSecondary">
-                    Status: 
+                    Status: {classe.status || 'Desconhecido'}
                   </Typography>
                 </CardContent>
               </Card>
@@ -64,4 +64,4 @@ export const ClassesScreen: React.FC = () => {
       )}
     </Box>
   );
-}
+};
